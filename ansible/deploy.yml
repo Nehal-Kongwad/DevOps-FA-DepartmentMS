@@ -1,0 +1,108 @@
+- name: Configure and deploy Campus Connect
+  hosts: web
+  become: true
+
+  vars:
+    app_dir: /home/ubuntu/campus-connect
+    repo_url: https://github.com/Nehal-Kongwad/DevOps-FA-DepartmentMS.git
+    backend_env_src: /mnt/c/Users/Nehal/Documents/DevOps-FA-DepartmentMS/backend-test.env
+
+  tasks:
+
+    - name: Update package list
+      ansible.builtin.apt:
+        update_cache: true
+
+    - name: Install required packages
+      ansible.builtin.apt:
+        name:
+          - ca-certificates
+          - curl
+          - git
+        state: present
+
+    - name: Create Docker keyring directory
+      ansible.builtin.file:
+        path: /etc/apt/keyrings
+        state: directory
+        mode: '0755'
+
+    - name: Download Docker GPG key
+      ansible.builtin.get_url:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        dest: /etc/apt/keyrings/docker.asc
+        mode: '0644'
+
+    - name: Add Docker repository
+      ansible.builtin.apt_repository:
+        repo: "deb [arch=amd64 signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable"
+        state: present
+        filename: docker
+
+    - name: Update package list after adding Docker repository
+      ansible.builtin.apt:
+        update_cache: true
+
+    - name: Install Docker
+      ansible.builtin.apt:
+        name:
+          - docker-ce
+          - docker-ce-cli
+          - containerd.io
+          - docker-buildx-plugin
+          - docker-compose-plugin
+        state: present
+
+    - name: Start and enable Docker
+      ansible.builtin.service:
+        name: docker
+        state: started
+        enabled: true
+
+    - name: Create application directory
+      ansible.builtin.file:
+        path: "{{ app_dir }}"
+        state: directory
+        owner: ubuntu
+        group: ubuntu
+        mode: '0755'
+
+    - name: Clone Campus Connect repository
+      become_user: ubuntu
+      ansible.builtin.git:
+        repo: "{{ repo_url }}"
+        dest: "{{ app_dir }}"
+        version: main
+        force: true
+
+    - name: Copy backend environment file
+      ansible.builtin.copy:
+        src: "{{ backend_env_src }}"
+        dest: "{{ app_dir }}/backend-test.env"
+        owner: ubuntu
+        group: ubuntu
+        mode: '0600'
+
+    - name: Create EC2 environment file
+      ansible.builtin.copy:
+        dest: "{{ app_dir }}/.env"
+        content: |
+          EC2_PUBLIC_IP={{ ansible_host }}
+        owner: ubuntu
+        group: ubuntu
+        mode: '0600'
+
+    - name: Build and start Campus Connect
+      ansible.builtin.command:
+        cmd: docker compose up --build -d
+        chdir: "{{ app_dir }}"
+
+    - name: Show running containers
+      ansible.builtin.command:
+        cmd: docker compose ps
+        chdir: "{{ app_dir }}"
+      register: compose_status
+
+    - name: Display container status
+      ansible.builtin.debug:
+        var: compose_status.stdout_lines
