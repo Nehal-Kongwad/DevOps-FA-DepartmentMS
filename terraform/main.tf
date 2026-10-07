@@ -78,6 +78,10 @@ resource "aws_instance" "campus_connect_server" {
   ami           = "ami-05bfa4a7765f38076"
   instance_type = "t3.small"
   key_name      = "fa1-key"
+  root_block_device {
+  volume_size = 20
+  volume_type = "gp3"
+}
 
   vpc_security_group_ids = [aws_security_group.campus_connect_sg.id]
 

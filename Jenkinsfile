@@ -1,0 +1,39 @@
+pipeline {
+    agent any
+
+    stages {
+
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Backend Build') {
+            steps {
+                dir('backend') {
+                    bat 'npm ci'
+                    bat 'npm run build'
+                }
+            }
+        }
+
+        stage('Backend Test') {
+            steps {
+                dir('backend') {
+                    bat 'npm test -- --runInBand'
+                }
+            }
+        }
+    }
+
+    post {
+        success {
+            echo 'CI Pipeline completed successfully!'
+        }
+
+        failure {
+            echo 'CI Pipeline failed. Check the stage logs.'
+        }
+    }
+}
