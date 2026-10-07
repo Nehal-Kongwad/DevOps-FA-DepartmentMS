@@ -28,7 +28,7 @@ pipeline {
 
         stage('Docker Build') {
             steps {
-                bat '"C:\\Users\\Nehal\\AppData\\Local\\Programs\\DockerDesktop\\resources\\bin\\docker.exe" compose build'
+                bat '"C:\\Users\\Nehal\\AppData\\Local\\Programs\\DockerDesktop\\resources\\bin\\docker-compose.exe" build'
             }
         }
     }
