@@ -21,7 +21,7 @@ pipeline {
         stage('Backend Test') {
             steps {
                 dir('backend') {
-                    bat 'npm test -- --runInBand'
+                    bat 'set NODE_ENV=test&& npm test -- --runInBand'
                 }
             }
         }
