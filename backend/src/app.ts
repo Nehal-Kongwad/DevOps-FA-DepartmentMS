@@ -57,14 +57,11 @@ app.use("/api/courses", courseRoutes);
 app.use("/api/materials", materialRoutes);
 
 // Database connection
-mongoose
-  .connect(process.env.MONGODB_URI as string)
-  .then(() => console.log("Connected to MongoDB"))
-  .catch((err) => console.error("MongoDB connection error:", err));
-
-const port = process.env.PORT || 4000;
-app.listen(port, () => {
-  console.log(`Server listening at port: ${port}`);
-});
+if (process.env.NODE_ENV !== "test") {
+  mongoose
+    .connect(process.env.MONGODB_URI as string)
+    .then(() => console.log("Connected to MongoDB"))
+    .catch((err) => console.error("MongoDBconnection error:", err));
+}
 
 export default app;
