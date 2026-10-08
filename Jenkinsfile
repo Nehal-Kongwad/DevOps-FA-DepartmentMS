@@ -36,13 +36,15 @@ pipeline {
             steps {
                 withCredentials([
                     usernamePassword(
-                        credentialsId: 'dockerhub-jenkins',,
+                        credentialsId: 'dockerhub-jenkins',
                         usernameVariable: 'DOCKER_USERNAME',
                         passwordVariable: 'DOCKER_PASSWORD'
                     )
                 ]) {
 
-                    bat 'echo %DOCKER_PASSWORD% | "C:\\Users\\Nehal\\AppData\\Local\\Programs\\DockerDesktop\\resources\\bin\\docker.exe" login -u %DOCKER_USERNAME% --password-stdin'
+                    powershell '''
+                    $env:DOCKER_PASSWORD | & "C:\\Users\\Nehal\\AppData\\Local\\Programs\\DockerDesktop\\resources\\bin\\docker.exe" login -u $env:DOCKER_USERNAME --password-stdin
+                    '''
 
                     bat '"C:\\Users\\Nehal\\AppData\\Local\\Programs\\DockerDesktop\\resources\\bin\\docker.exe" tag campus-connect-fa2-backend %DOCKER_USERNAME%/campus-connect-backend:latest'
 
