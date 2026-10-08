@@ -47,18 +47,22 @@ pipeline {
                     )
                 ]) {
                     powershell '''
-                    Write-Host "Logging in to Docker Hub..."
+                    $docker = "C:\\Users\\Nehal\\AppData\\Local\\Programs\\DockerDesktop\\resources\\bin\\docker.exe"
 
-                    $env:DOCKER_PASSWORD | & "$env:DOCKER" login `
+                    Write-Host "Docker Hub username: $env:DOCKER_USERNAME"
+                    Write-Host "Docker password length: $($env:DOCKER_PASSWORD.Length)"
+                    Write-Host "Testing Docker Hub authentication..."
+
+                    $env:DOCKER_PASSWORD | & $docker login `
                         --username $env:DOCKER_USERNAME `
                         --password-stdin
 
                     if ($LASTEXITCODE -ne 0) {
-                        Write-Error "Docker Hub login failed."
+                        Write-Error "Docker Hub authentication failed."
                         exit 1
                     }
 
-                    Write-Host "Docker Hub login successful!"
+                    Write-Host "Docker Hub authentication SUCCESSFUL!"
                     '''
                 }
             }
@@ -110,12 +114,18 @@ pipeline {
 
     post {
         success {
-            echo 'CI/CD pipeline completed successfully!'
-            echo 'Docker images were built, tested and pushed to Docker Hub.'
+            echo '=========================================='
+            echo 'CI/CD PIPELINE COMPLETED SUCCESSFULLY!'
+            echo '=========================================='
+            echo 'Backend built, tested and pushed to Docker Hub.'
+            echo 'Frontend built and pushed to Docker Hub.'
         }
 
         failure {
-            echo 'CI/CD pipeline failed. Check the failed stage.'
+            echo '=========================================='
+            echo 'CI/CD PIPELINE FAILED'
+            echo '=========================================='
+            echo 'Check the failed stage in the Jenkins console.'
         }
     }
 }
