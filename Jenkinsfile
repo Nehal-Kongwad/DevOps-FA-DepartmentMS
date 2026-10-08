@@ -32,42 +32,31 @@ pipeline {
             }
         }
 
-        stage('Docker Hub Login Test') {
+        stage('Docker Environment Check') {
             steps {
-                withCredentials([
-                    usernamePassword(
-                        credentialsId: 'dockerhub-jenkins',
-                        usernameVariable: 'DOCKER_USERNAME',
-                        passwordVariable: 'DOCKER_PASSWORD'
-                    )
-                ]) {
 
-                    powershell '''
-                    Write-Host "Testing Docker Hub login..."
-                    Write-Host "Username: $env:DOCKER_USERNAME"
-                    Write-Host "Token length: $($env:DOCKER_PASSWORD.Length)"
+                echo 'Checking Docker context...'
 
-                    $env:DOCKER_PASSWORD | & "C:\\Users\\Nehal\\AppData\\Local\\Programs\\DockerDesktop\\resources\\bin\\docker.exe" login --username $env:DOCKER_USERNAME --password-stdin
+                bat '"C:\\Users\\Nehal\\AppData\\Local\\Programs\\DockerDesktop\\resources\\bin\\docker.exe" context show'
 
-                    if ($LASTEXITCODE -ne 0) {
-                        Write-Error "Docker Hub login failed."
-                        exit 1
-                    }
+                echo 'Checking Docker version...'
 
-                    Write-Host "Docker Hub login successful!"
-                    '''
-                }
+                bat '"C:\\Users\\Nehal\\AppData\\Local\\Programs\\DockerDesktop\\resources\\bin\\docker.exe" version'
+
+                echo 'Checking Docker information...'
+
+                bat '"C:\\Users\\Nehal\\AppData\\Local\\Programs\\DockerDesktop\\resources\\bin\\docker.exe" info
             }
         }
     }
 
     post {
         success {
-            echo 'Docker Hub authentication test completed successfully!'
+            echo 'Docker environment check completed successfully!'
         }
 
         failure {
-            echo 'Docker Hub authentication test failed.'
+            echo 'Docker environment check failed. Check the Docker context/version/info logs.'
         }
     }
 }
