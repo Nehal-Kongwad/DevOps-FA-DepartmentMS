@@ -34,18 +34,9 @@ pipeline {
 
         stage('Docker Environment Check') {
             steps {
-
-                echo 'Checking Docker context...'
-
                 bat '"C:\\Users\\Nehal\\AppData\\Local\\Programs\\DockerDesktop\\resources\\bin\\docker.exe" context show'
-
-                echo 'Checking Docker version...'
-
                 bat '"C:\\Users\\Nehal\\AppData\\Local\\Programs\\DockerDesktop\\resources\\bin\\docker.exe" version'
-
-                echo 'Checking Docker information...'
-
-                bat '"C:\\Users\\Nehal\\AppData\\Local\\Programs\\DockerDesktop\\resources\\bin\\docker.exe" info
+                bat '"C:\\Users\\Nehal\\AppData\\Local\\Programs\\DockerDesktop\\resources\\bin\\docker.exe" info'
             }
         }
     }
@@ -56,7 +47,7 @@ pipeline {
         }
 
         failure {
-            echo 'Docker environment check failed. Check the Docker context/version/info logs.'
+            echo 'Docker environment check failed. Check the logs.'
         }
     }
 }
