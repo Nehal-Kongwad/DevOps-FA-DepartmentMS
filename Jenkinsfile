@@ -32,7 +32,7 @@ pipeline {
             }
         }
 
-        stage('Docker Hub Push') {
+        stage('Docker Hub Credential Check') {
             steps {
                 withCredentials([
                     usernamePassword(
@@ -43,16 +43,9 @@ pipeline {
                 ]) {
 
                     powershell '''
-                    $env:DOCKER_PASSWORD | & "C:\\Users\\Nehal\\AppData\\Local\\Programs\\DockerDesktop\\resources\\bin\\docker.exe" login -u $env:DOCKER_USERNAME --password-stdin
+                    Write-Host "Docker username: $env:DOCKER_USERNAME"
+                    Write-Host "Docker token length: $($env:DOCKER_PASSWORD.Length)"
                     '''
-
-                    bat '"C:\\Users\\Nehal\\AppData\\Local\\Programs\\DockerDesktop\\resources\\bin\\docker.exe" tag campus-connect-fa2-backend %DOCKER_USERNAME%/campus-connect-backend:latest'
-
-                    bat '"C:\\Users\\Nehal\\AppData\\Local\\Programs\\DockerDesktop\\resources\\bin\\docker.exe" tag campus-connect-fa2-frontend %DOCKER_USERNAME%/campus-connect-frontend:latest'
-
-                    bat '"C:\\Users\\Nehal\\AppData\\Local\\Programs\\DockerDesktop\\resources\\bin\\docker.exe" push %DOCKER_USERNAME%/campus-connect-backend:latest'
-
-                    bat '"C:\\Users\\Nehal\\AppData\\Local\\Programs\\DockerDesktop\\resources\\bin\\docker.exe" push %DOCKER_USERNAME%/campus-connect-frontend:latest'
                 }
             }
         }
@@ -60,7 +53,7 @@ pipeline {
 
     post {
         success {
-            echo 'CI/CD Docker build and push completed successfully!'
+            echo 'CI/CD credential diagnostic completed successfully!'
         }
 
         failure {
