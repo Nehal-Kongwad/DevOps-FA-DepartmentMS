@@ -32,22 +32,41 @@ pipeline {
             }
         }
 
-        stage('Docker Environment Check') {
+        stage('Docker Hub Login Test') {
             steps {
-                bat '"C:\\Users\\Nehal\\AppData\\Local\\Programs\\DockerDesktop\\resources\\bin\\docker.exe" context show'
-                bat '"C:\\Users\\Nehal\\AppData\\Local\\Programs\\DockerDesktop\\resources\\bin\\docker.exe" version'
-                bat '"C:\\Users\\Nehal\\AppData\\Local\\Programs\\DockerDesktop\\resources\\bin\\docker.exe" info'
+                withCredentials([
+                    usernamePassword(
+                        credentialsId: 'dockerhub-jenkins',
+                        usernameVariable: 'DOCKER_USERNAME',
+                        passwordVariable: 'DOCKER_PASSWORD'
+                    )
+                ]) {
+
+                    powershell '''
+                    Write-Host "Testing Docker Hub login..."
+                    Write-Host "Username: $env:DOCKER_USERNAME"
+
+                    $env:DOCKER_PASSWORD | & "C:\\Users\\Nehal\\AppData\\Local\\Programs\\DockerDesktop\\resources\\bin\\docker.exe" login --username $env:DOCKER_USERNAME --password-stdin
+
+                    if ($LASTEXITCODE -ne 0) {
+                        Write-Error "Docker Hub login failed."
+                        exit 1
+                    }
+
+                    Write-Host "Docker Hub login successful!"
+                    '''
+                }
             }
         }
     }
 
     post {
         success {
-            echo 'Docker environment check completed successfully!'
+            echo 'Docker Hub authentication test completed successfully!'
         }
 
         failure {
-            echo 'Docker environment check failed. Check the logs.'
+            echo 'Docker Hub authentication test failed.'
         }
     }
 }
