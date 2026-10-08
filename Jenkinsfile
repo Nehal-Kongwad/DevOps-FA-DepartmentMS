@@ -1,6 +1,11 @@
 pipeline {
     agent any
 
+    environment {
+        DOCKER = 'C:\\Users\\Nehal\\AppData\\Local\\Programs\\DockerDesktop\\resources\\bin\\docker.exe'
+        DOCKER_COMPOSE = 'C:\\Users\\Nehal\\AppData\\Local\\Programs\\DockerDesktop\\resources\\bin\\docker-compose.exe'
+    }
+
     stages {
 
         stage('Checkout') {
@@ -28,11 +33,11 @@ pipeline {
 
         stage('Docker Build') {
             steps {
-                bat '"C:\\Users\\Nehal\\AppData\\Local\\Programs\\DockerDesktop\\resources\\bin\\docker-compose.exe" build'
+                bat "\"%DOCKER_COMPOSE%\" build"
             }
         }
 
-        stage('Docker Credential Fingerprint') {
+        stage('Docker Hub Login') {
             steps {
                 withCredentials([
                     usernamePassword(
@@ -42,16 +47,62 @@ pipeline {
                     )
                 ]) {
                     powershell '''
-                    Write-Host "Docker username: $env:DOCKER_USERNAME"
+                    Write-Host "Logging in to Docker Hub..."
 
-                    $sha256 = [System.Security.Cryptography.SHA256]::Create()
-                    $bytes = [System.Text.Encoding]::UTF8.GetBytes($env:DOCKER_PASSWORD)
-                    $hash = $sha256.ComputeHash($bytes)
-                    $fingerprint = [BitConverter]::ToString($hash).Replace("-", "").ToLower()
+                    $env:DOCKER_PASSWORD | & "$env:DOCKER" login `
+                        --username $env:DOCKER_USERNAME `
+                        --password-stdin
 
-                    Write-Host "Credential SHA256: $fingerprint"
-                    Write-Host "Credential length: $($env:DOCKER_PASSWORD.Length)"
+                    if ($LASTEXITCODE -ne 0) {
+                        Write-Error "Docker Hub login failed."
+                        exit 1
+                    }
+
+                    Write-Host "Docker Hub login successful!"
                     '''
+                }
+            }
+        }
+
+        stage('Tag Docker Images') {
+            steps {
+                withCredentials([
+                    usernamePassword(
+                        credentialsId: 'dockerhub-jenkins',
+                        usernameVariable: 'DOCKER_USERNAME',
+                        passwordVariable: 'DOCKER_PASSWORD'
+                    )
+                ]) {
+                    bat "\"%DOCKER%\" tag campus-connect-fa2-backend %DOCKER_USERNAME%/campus-connect-backend:latest"
+                    bat "\"%DOCKER%\" tag campus-connect-fa2-frontend %DOCKER_USERNAME%/campus-connect-frontend:latest"
+                }
+            }
+        }
+
+        stage('Push Backend Image') {
+            steps {
+                withCredentials([
+                    usernamePassword(
+                        credentialsId: 'dockerhub-jenkins',
+                        usernameVariable: 'DOCKER_USERNAME',
+                        passwordVariable: 'DOCKER_PASSWORD'
+                    )
+                ]) {
+                    bat "\"%DOCKER%\" push %DOCKER_USERNAME%/campus-connect-backend:latest"
+                }
+            }
+        }
+
+        stage('Push Frontend Image') {
+            steps {
+                withCredentials([
+                    usernamePassword(
+                        credentialsId: 'dockerhub-jenkins',
+                        usernameVariable: 'DOCKER_USERNAME',
+                        passwordVariable: 'DOCKER_PASSWORD'
+                    )
+                ]) {
+                    bat "\"%DOCKER%\" push %DOCKER_USERNAME%/campus-connect-frontend:latest"
                 }
             }
         }
@@ -59,11 +110,12 @@ pipeline {
 
     post {
         success {
-            echo 'Docker credential fingerprint check completed successfully!'
+            echo 'CI/CD pipeline completed successfully!'
+            echo 'Docker images were built, tested and pushed to Docker Hub.'
         }
 
         failure {
-            echo 'Docker credential fingerprint check failed.'
+            echo 'CI/CD pipeline failed. Check the failed stage.'
         }
     }
 }
