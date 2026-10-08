@@ -32,7 +32,7 @@ pipeline {
             }
         }
 
-        stage('Docker Hub Credential Check') {
+        stage('Docker Hub Login Test') {
             steps {
                 withCredentials([
                     usernamePassword(
@@ -43,8 +43,18 @@ pipeline {
                 ]) {
 
                     powershell '''
-                    Write-Host "Docker username: $env:DOCKER_USERNAME"
-                    Write-Host "Docker token length: $($env:DOCKER_PASSWORD.Length)"
+                    Write-Host "Testing Docker Hub login..."
+                    Write-Host "Username: $env:DOCKER_USERNAME"
+                    Write-Host "Token length: $($env:DOCKER_PASSWORD.Length)"
+
+                    $env:DOCKER_PASSWORD | & "C:\\Users\\Nehal\\AppData\\Local\\Programs\\DockerDesktop\\resources\\bin\\docker.exe" login --username $env:DOCKER_USERNAME --password-stdin
+
+                    if ($LASTEXITCODE -ne 0) {
+                        Write-Error "Docker Hub login failed."
+                        exit 1
+                    }
+
+                    Write-Host "Docker Hub login successful!"
                     '''
                 }
             }
@@ -53,11 +63,11 @@ pipeline {
 
     post {
         success {
-            echo 'CI/CD credential diagnostic completed successfully!'
+            echo 'Docker Hub authentication test completed successfully!'
         }
 
         failure {
-            echo 'CI/CD pipeline failed. Check the stage logs.'
+            echo 'Docker Hub authentication test failed.'
         }
     }
 }
