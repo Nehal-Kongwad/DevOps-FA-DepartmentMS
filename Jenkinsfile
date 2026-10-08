@@ -42,15 +42,15 @@ pipeline {
                     )
                 ]) {
 
-                    bat 'echo %DOCKER_PASSWORD% | "C:\\Program Files\\Docker\\Docker\\resources\\bin\\docker.exe" login -u %DOCKER_USERNAME% --password-stdin'
+                    bat 'echo %DOCKER_PASSWORD% | "C:\\Users\\Nehal\\AppData\\Local\\Programs\\DockerDesktop\\resources\\bin\\docker.exe" login -u %DOCKER_USERNAME% --password-stdin'
 
-                    bat '"C:\\Program Files\\Docker\\Docker\\resources\\bin\\docker.exe" tag campus-connect-backend %DOCKER_USERNAME%/campus-connect-backend:latest'
+                    bat '"C:\\Users\\Nehal\\AppData\\Local\\Programs\\DockerDesktop\\resources\\bin\\docker.exe" tag campus-connect-fa2-backend %DOCKER_USERNAME%/campus-connect-backend:latest'
 
-                    bat '"C:\\Program Files\\Docker\\Docker\\resources\\bin\\docker.exe" tag campus-connect-frontend %DOCKER_USERNAME%/campus-connect-frontend:latest'
+                    bat '"C:\\Users\\Nehal\\AppData\\Local\\Programs\\DockerDesktop\\resources\\bin\\docker.exe" tag campus-connect-fa2-frontend %DOCKER_USERNAME%/campus-connect-frontend:latest'
 
-                    bat '"C:\\Program Files\\Docker\\Docker\\resources\\bin\\docker.exe" push %DOCKER_USERNAME%/campus-connect-backend:latest'
+                    bat '"C:\\Users\\Nehal\\AppData\\Local\\Programs\\DockerDesktop\\resources\\bin\\docker.exe" push %DOCKER_USERNAME%/campus-connect-backend:latest'
 
-                    bat '"C:\\Program Files\\Docker\\Docker\\resources\\bin\\docker.exe" push %DOCKER_USERNAME%/campus-connect-frontend:latest'
+                    bat '"C:\\Users\\Nehal\\AppData\\Local\\Programs\\DockerDesktop\\resources\\bin\\docker.exe" push %DOCKER_USERNAME%/campus-connect-frontend:latest'
                 }
             }
         }
