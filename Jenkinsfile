@@ -31,15 +31,38 @@ pipeline {
                 bat '"C:\\Users\\Nehal\\AppData\\Local\\Programs\\DockerDesktop\\resources\\bin\\docker-compose.exe" build'
             }
         }
+
+        stage('Docker Hub Push') {
+            steps {
+                withCredentials([
+                    usernamePassword(
+                        credentialsId: 'dockerhub-creds',
+                        usernameVariable: 'DOCKER_USERNAME',
+                        passwordVariable: 'DOCKER_PASSWORD'
+                    )
+                ]) {
+
+                    bat 'echo %DOCKER_PASSWORD% | "C:\\Program Files\\Docker\\Docker\\resources\\bin\\docker.exe" login -u %DOCKER_USERNAME% --password-stdin'
+
+                    bat '"C:\\Program Files\\Docker\\Docker\\resources\\bin\\docker.exe" tag campus-connect-backend %DOCKER_USERNAME%/campus-connect-backend:latest'
+
+                    bat '"C:\\Program Files\\Docker\\Docker\\resources\\bin\\docker.exe" tag campus-connect-frontend %DOCKER_USERNAME%/campus-connect-frontend:latest'
+
+                    bat '"C:\\Program Files\\Docker\\Docker\\resources\\bin\\docker.exe" push %DOCKER_USERNAME%/campus-connect-backend:latest'
+
+                    bat '"C:\\Program Files\\Docker\\Docker\\resources\\bin\\docker.exe" push %DOCKER_USERNAME%/campus-connect-frontend:latest'
+                }
+            }
+        }
     }
 
     post {
         success {
-            echo 'CI Pipeline completed successfully!'
+            echo 'CI/CD Docker build and push completed successfully!'
         }
 
         failure {
-            echo 'CI Pipeline failed. Check the stage logs.'
+            echo 'CI/CD pipeline failed. Check the stage logs.'
         }
     }
 }
