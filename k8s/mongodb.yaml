@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: campus-connect-mongodb
+  namespace: campus-connect
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: campus-connect-mongodb
+  template:
+    metadata:
+      labels:
+        app: campus-connect-mongodb
+    spec:
+      containers:
+        - name: mongodb
+          image: mongo:7
+          ports:
+            - containerPort: 27017
+          volumeMounts:
+            - name: mongodb-data
+              mountPath: /data/db
+      volumes:
+        - name: mongodb-data
+          emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: campus-connect-mongodb
+  namespace: campus-connect
+spec:
+  selector:
+    app: campus-connect-mongodb
+  ports:
+    - port: 27017
+      targetPort: 27017
+  type: ClusterIP

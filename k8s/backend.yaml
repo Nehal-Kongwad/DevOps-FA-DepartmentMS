@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: campus-connect-backend
+  namespace: campus-connect
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: campus-connect-backend
+  template:
+    metadata:
+      labels:
+        app: campus-connect-backend
+    spec:
+      containers:
+        - name: backend
+          image: nehalkongwad07/campus-connect-backend:latest
+          ports:
+            - containerPort: 4000
+          env:
+            - name: MONGODB_URI
+              value: mongodb://campus-connect-mongodb:27017/departmentMS
+            - name: NODE_ENV
+              value: production
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: campus-connect-backend
+  namespace: campus-connect
+spec:
+  selector:
+    app: campus-connect-backend
+  ports:
+    - port: 4000
+      targetPort: 4000
+      nodePort: 30400
+  type: NodePort

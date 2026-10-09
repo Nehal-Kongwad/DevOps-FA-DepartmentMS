@@ -1,0 +1,55 @@
+backend:
+  name: campus-connect-backend
+  replicas: 1
+
+  image:
+    repository: nehalkongwad07/campus-connect-backend
+    tag: latest
+    pullPolicy: IfNotPresent
+
+  containerPort: 4000
+
+  mongodbUri: mongodb://campus-connect-mongodb:27017/departmentMS
+  nodeEnv: production
+
+  service:
+    type: NodePort
+    port: 4000
+    targetPort: 4000
+    nodePort: 30400
+
+frontend:
+  name: campus-connect-frontend
+  replicas: 1
+
+  image:
+    repository: nehalkongwad07/campus-connect-frontend
+    tag: latest
+    pullPolicy: IfNotPresent
+
+  containerPort: 3000
+
+  service:
+    type: NodePort
+    port: 80
+    targetPort: 3000
+    nodePort: 30080
+
+mongodb:
+  name: campus-connect-mongodb
+  replicas: 1
+
+  image:
+    repository: mongo
+    tag: "7"
+    pullPolicy: IfNotPresent
+
+  containerPort: 27017
+
+  service:
+    type: ClusterIP
+    port: 27017
+    targetPort: 27017
+
+  storage:
+    mountPath: /data/db

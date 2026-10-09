@@ -6,7 +6,7 @@
   "scripts": {
     "test": "jest",
     "dev": "npx nodemon src/app.ts",
-    "start": "node dist/server.js",
+    "start": "node dist/src/server.js",
     "build": "tsc",
     "create-admin": "ts-node src/utils/createAdmin.ts",
     "seed-db": "ts-node src/utils/seedDatabase.ts",

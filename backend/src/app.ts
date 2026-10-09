@@ -21,6 +21,7 @@ app.get("/", (_req, res) => {
 const allowedOrigins = [
   /^http:\/\/localhost:\d+$/,
   process.env.FRONTEND_URL || "https://department-ms.vercel.app",
+  "http://13.60.44.173:30080",
 ];
 
 app.use(

@@ -1,4 +1,25 @@
+```gitignore
+# Node.js dependencies
 node_modules/
+backend/node_modules/
+frontend/node_modules/
+
+# Environment variables and secrets
 .env
-# /dist
+.env.*
+!.env.example
+backend-test.env
+backend/*.env
+
+# Generated backend build output
+backend/dist/
+
+# Vercel
 .vercel
+
+# Terraform generated files
+terraform/.terraform/
+
+# Uploaded runtime files
+backend/uploads/
+```

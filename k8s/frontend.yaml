@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: campus-connect-frontend
+  namespace: campus-connect
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: campus-connect-frontend
+  template:
+    metadata:
+      labels:
+        app: campus-connect-frontend
+    spec:
+      containers:
+        - name: frontend
+          image: nehalkongwad07/campus-connect-frontend:latest
+          ports:
+            - containerPort: 3000
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: campus-connect-frontend
+  namespace: campus-connect
+spec:
+  selector:
+    app: campus-connect-frontend
+  ports:
+    - port: 80
+      targetPort: 3000
+      nodePort: 30080
+  type: NodePort
